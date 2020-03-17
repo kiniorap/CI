@@ -56,13 +56,13 @@
             }else{
                 $strNombre=$this->input->post('strNombre');
                 $strDescripcion=$this->input->post('strDescripcion');
-                $intStatus=$this->input->post('intEstatus');
+                $intEstatus=$this->input->post('intEstatus');
                 $intResultado=0;
                 if ($intId==''){
-                    $intResultado=$this->MdMarcas->agregar($strNombre,$strDescripcion,$intStatus);
+                    $intResultado=$this->MdMarcas->agregar($strNombre,$strDescripcion,$intEstatus);
                 }else
                 {
-                    $intResultado=$this->MdMarcas->editar($intId,$strNombre,$strDescripcion,$intStatus);
+                    $intResultado=$this->MdMarcas->editar($intId,$strNombre,$strDescripcion,$intEstatus);
                 }
                 if($intResultado==1){
                     $arrDatos['arrMensajes']=[array ('intTipo'=>1,'strMensaje'=>'El registro fue guardado')]; 

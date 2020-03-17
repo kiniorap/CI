@@ -5,12 +5,12 @@
             $this->load->model('MdModelos');
             $this->load->model('MdMarcas');
         }
-        public function index(){
-            $intMarcasId=$this->input->post('intMarcasId');
-            if($intMarcasId=='')$intMarcasId=0; 
+        public function index($arrDatos = []){
+            $intMarcaId=$this->input->post('intMarcaId');
+            if($intMarcaId=='')$intMarcaId=0; 
             $arrDatosDinamicos['arrMarcas']=$this->MdMarcas->buscarActivos();
-            $arrDatosDinamicos['arrModelos']=$this->MdModelos->listar($intMarcasId);
-            $arrDatosDinamicos['intMarcasId']=$intMarcasId;
+            $arrDatosDinamicos['arrModelos']=$this->MdModelos->listar($intMarcaId);
+            $arrDatosDinamicos['intMarcaId']=$intMarcaId;
             $arrDatos['strActivo']='modelos';
             $arrDatos['strContenido']=$this->load->view('modelos/listar',$arrDatosDinamicos,TRUE);
             $this->load->view('principal',$arrDatos);
@@ -35,13 +35,12 @@
                 );    
             }
             $this->form_validation->set_rules(
-                'intMarca', 'Marca',
-                'required|integer',
+                'intMarcaId', 'Marca','required|integer',
                 array(
-                    'required'=>'Seleccione un %s.',
+                    'required'=>'Seleccione una %s.',
                     'integer'=>'El %s debe ser un número.'
                 )
-            );
+            );    
             $this->form_validation->set_rules(
                 'intEstatus', 'Estatus',
                 'required|integer|greater_than[0]',
@@ -52,42 +51,41 @@
                 )
             );
             $this->form_validation->set_rules(
-                'floatPrecio', 'Precio',
-                'required|float|greater_than[0]',
+                'dblPrecio', 'Precio',
+                'required|numeric',
                 array(
-                    'required'=>'Ingrese un %s.',
-                    'float'=>'El %s debe ser un número.',
-                    'greater_than'=>'Seleccione un %s'
+                    'required'=>'Ingrese el %s.',
+                    'numeric'=>'El %s debe ser un número.'
                 )
             );
             if ($this->form_validation->run() == FALSE){
-                if($intId==''){                
+                if($intId == ''){                
                     $this->index();
+                    echo "holisjsdiasnoifn";
                 }else{
                     $this->editar($intId,TRUE);
                 }
             }else{
-                $intMarcasId=$this->input->post('intMarcasId');
+                $intMarcaId = $this->input->post('intMarcaId');
                 $strNombre=$this->input->post('strNombre');
                 $strDescripcion=$this->input->post('strDescripcion');
-                $intStatus=$this->input->post('intEstatus');
-                $floatPrecio=$this->input->post('floatPrecio');
+                $intEstatus=$this->input->post('intEstatus');
+                $dblPrecio=$this->input->post('dblPrecio');
                 $intResultado=0;
                 if ($intId==''){
-                    $intResultado=$this->MdMarcas->listar($strNombre,$strDescripcion,$intStatus,$floatPrecio);
+                    $intResultado=$this->MdModelos->agregar($intMarcaId,$strNombre,$strDescripcion,$intEstatus,$dblPrecio);
                 }else
                 {
-                    $intResultado=$this->MdMarcas->editar($intId,$strNombre,$strDescripcion,$intStatus,$floatPrecio);
+                    $intResultado=$this->MdMarcas->editar($intId,$strNombre,$strDescripcion,$intEstatus,$dblPrecio);
                 }
                 if($intResultado==1){
-                    $arrDatos['arrMensajes']=[array ('intTipo'=>1,'strMensaje'=>'El registro fue guardado')]; 
-                    $this->index($arrDatos);
+                    $arrDatos['arrMensajes'] = [array ('intTipo'=>1,'strMensaje'=>'El registro fue guardado')]; 
                 }else{
-                    $arrDatos['arrMensajes']=[array ('intTipo'=>2,'strMensaje'=>'error al guardar')]; 
-                    $this->agregar($arrDatos);
+                    $arrDatos['arrMensajes'] = [array ('intTipo'=>2,'strMensaje'=>'error al guardar')]; 
                 }
+                $this->index($arrDatos);
             }       
-        } 
+        }
         public function editar($intId,$EsEditarGuardar=FALSE){
             if(!$EsEditarGuardar){$arrDatos['registro']= $this->MdMarcas->buscar($intId);}
             $arrDatos['strActivo']='marcas';

@@ -11,17 +11,17 @@
       $consulta=$this->db->get();
       return $consulta->result();
     }
-    public function agregar($strNombre,$strDescripcion,$intStatus){
+    public function agregar($strNombre,$strDescripcion,$intEstatus){
       $this->db->set('nombre',$strNombre);
       $this->db->set('descripcion',$strDescripcion);
-      $this->db->set('status',$intStatus);  
+      $this->db->set('status',$intEstatus);  
       $this->db->insert('marcas');
       return $this->db->affected_rows();
     }
-    public function editar($intId,$strNombre,$strDescripcion,$intStatus){
+    public function editar($intId,$strNombre,$strDescripcion,$intEstatus){
       $this->db->set('nombre',$strNombre);
       $this->db->set('descripcion',$strDescripcion);
-      $this->db->set('status',$intStatus);  
+      $this->db->set('status',$intEstatus);  
       $this->db->where('id',$intId);
       $this->db->update('marcas');
       return ($this->db->affected_rows() or $this->db->error()['code']==0);

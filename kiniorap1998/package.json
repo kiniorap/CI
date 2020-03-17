@@ -1,0 +1,21 @@
+{
+    "name": "kiniorap1998",
+    "displayName": "kinio",
+    "description": "Dark Green Theme",
+    "version": "0.0.1",
+    "engines": {
+        "vscode": "^1.43.0"
+    },
+    "categories": [
+        "Themes"
+    ],
+    "contributes": {
+        "themes": [
+            {
+                "label": "kiniorap",
+                "uiTheme": "vs-dark",
+                "path": "./themes/kiniorap-color-theme.json"
+            }
+        ]
+    }
+}
