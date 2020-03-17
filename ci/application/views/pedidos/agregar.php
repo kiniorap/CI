@@ -2,7 +2,7 @@
   <h5 class="card-header">Agregar Producto<a href="<?= base_url()?>marcas" class="btn btn-secondary float-right">ATRAS</a></h5>
     <div class="card-body">
         <div class="row">
-            <div class="col-6">
+            <div class="col-5">
                 <form id="frmDatosEnvio" action="<?= base_url()?>pedidos/datosEnvio" method="POST">
                 <input type="hidden" name="intMarcaId" value="<?=$intMarcaId?>" > 
                     <div class="form-group">
@@ -72,7 +72,7 @@
                     <button type="button" class="btn btn-info float-right" onclick="submit();" >AGREGAR PRODUCTO</button>   
                 </form>
             </div>
-            <div class="col-6">
+            <div class="col-7">
                 <div class="tab-content">
                     <table class="table">
                         <thead>
@@ -83,6 +83,7 @@
                                 <th scope="col">Cantidad</th>
                                 <th scope="col">Precio</th>
                                 <th scope="col">Subtotal</th>
+                                <th></th>
                             </tr>
                         </thead>
                         <tbody>
