@@ -4,6 +4,8 @@
             parent::__construct();
             $this->load->model('MdModelos');//cargar un modelo a nivel clase
             $this->load->model('MdMarcas');//cargar un modelo a nivel clase
+            $this->load->model('MdPedidos');//cargar un modelo a nivel clase
+            $this->load->helper('date');
             //$this->session->set_userdata('arrCarrito',[]);//meter el carrito a session
             
             if($this->session->has_userdata('arrCarrito')){//verificar si existe carrito
@@ -105,7 +107,6 @@
 
             if ($bolExisteModelo == FALSE) {
                 $arrModelos=$this->MdModelos->buscar($intModeloId);//asignar el arreglo que manda el metodo del modelo
-                echo var_dump($arrModelos);
                 if(count($arrModelos)!=0){
                     $objModelo=$arrModelos[0];//asignar el arreglo a un objeto
                     $objModelo->cantidad=$intCantidad;//asignarle el valor que que se obtuvo por post e ingresarlo al objeto
@@ -163,9 +164,9 @@
                     $dblTotal=$dblSubTotal + $dblSubTotalIva + $dblCostoEnvio; //CALCULA EL TOTAL SUMANDO EL SUBTOTAL MAS EL IVA MAS EL COSTO DE ENVIO
                 }
             }else {
-            $dblSubTotal = 0;//declaracion de variables a nivel funcion
-            $dblSubTotalIva = 0;//declaracion de variables a nivel funcion
-            $dblTotal = $dblCostoEnvio;//declaracion de variables a nivel funcion
+                $dblSubTotal = 0;//declaracion de variables a nivel funcion
+                $dblSubTotalIva = 0;//declaracion de variables a nivel funcion
+                $dblTotal = $dblCostoEnvio;//declaracion de variables a nivel funcion
             }
             $arrDatosDinamicos['intMarcaId'] = $intMarcaId;
             $arrDatosDinamicos['dblSubTotal'] = $dblSubTotal;
@@ -228,58 +229,42 @@
             $arrDatos['strContenido'] = $this->load->view('pedidos/agregar',$arrDatosDinamicos,TRUE);
             $this->load->view('principal',$arrDatos);
         }
-        public function agregar($arrDatos=[]){
-            $arrDatos['strActivo']='marcas';
-            $arrDatos['strContenido']=$this->load->view('marcas/agregar',NULL,TRUE);
-            $this->load->view('principal',$arrDatos);
-        }
         public function guardar(){
-            $objDatosPedido = new stdClass();
-            $objDatosPedido = $this->arrCarrito;
-            $intId=$this->input->post('intId');
-            echo var_dump($this->arrCarrito);
-            if($intId==''){
-                $this->form_validation->set_rules(
-                    'strNombre', 'Nombre',
-                    'required|is_unique[marcas.nombre]',
-                    array(
-                        'required'=>'Ingrese un %s.',
-                        'is_unique'=>'El %s ya existe, ingrese uno distinto.'
-                    )
-                ); 
-            }else{
-                $this->form_validation->set_rules(
-                    'strNombre', 'Nombre','required',
-                    array(
-                        'required'=>'Ingrese un %s.',
-                    )
-                );    
+            $intMarcaId=$this->input->post('intMarcaId');//obtener por POST el valor desde el formulario
+            $intPedidoId=$this->input->post('intPedidoId');
+            $dblCostoEnvio=$this->objDatosEnvio->costoEnvio;
+            $strNombre=$this->objDatosEnvio->nombre;
+            $strDireccion=$this->objDatosEnvio->direccion;
+            $dateFechaEntrega=$this->objDatosEnvio->fechaEntrega;
+            $intEstatus=$this->objDatosEnvio->estatus;
+            $intCantidad=0; 
+            $dateFechaCaptura = time();
+            #if(count($this->arrCarrito)==0{}
+
+            foreach ($this->arrCarrito as $objModelo) {//recorrer el carrito
+                $objModelo->cantidad += $intCantidad;
             }
-            $this->form_validation->set_rules(
-                'intEstatus', 'Estatus',
-                'required|integer|greater_than[0]',
-                array(
-                    'required'=>'Ingrese un %s.',
-                    'integer'=>'El %s debe ser un número.',
-                    'greater_than'=>'Seleccione un %s'
-                )
-            );
-            if ($this->form_validation->run() == FALSE){
-                if($intId==''){                
-                    $this->agregar();
-                }else{
-                    $this->editar($intId,TRUE);
+            if ($dblCostoEnvio == NULL) {
+                $dblCostoEnvio = 0;
+            }
+            $dblSubTotal = 0;//declaracion de variables a nivel funcion
+            $dblIva=.16;//declaracion de variables a nivel funcion
+            $dblSubTotalIva = 0;//declaracion de variables a nivel funcion
+            $dblTotal = $dblCostoEnvio;//declaracion de variables a nivel funcion
+            if(count($this->arrCarrito)!=0){ //EVALUA QUE EL CARRITO NO ESTE VACIO
+                foreach ($this->arrCarrito as $objModelo) { //RECORRE CADA ELEMENTO DEL CARRITO
+                    $dblSubTotal+=$objModelo->subTotal; //CALCULA LA SUMATORIA DEL SUBTOTAL
+                    $dblSubTotalIva=$dblSubTotal * $dblIva; //CALCULA CUANTO ES EL IVA DE LA SUMATORIA DEL SUBTOTAL
+                    $dblTotal=$dblSubTotal + $dblSubTotalIva + $dblCostoEnvio; //CALCULA EL TOTAL SUMANDO EL SUBTOTAL MAS EL IVA MAS EL COSTO DE ENVIO
                 }
-            }else{
-                $strNombre=$this->input->post('strNombre');
-                $strDescripcion=$this->input->post('strDescripcion');
-                $intEstatus=$this->input->post('intEstatus');
+            }       
+            if($intPedidoId == ''){                
                 $intResultado=0;
-                if ($intId==''){
-                    $intResultado=$this->MdMarcas->agregar($strNombre,$strDescripcion,$intEstatus);
+                if ($intPedidoId==''){
+                    $intResultado=$this->MdPedidos->agregar($strNombre,$strDireccion,$intEstatus,$dateFechaCaptura,$dateFechaEntrega,$dblCostoEnvio,$intCantidad,$dblTotal);
                 }else
                 {
-                    $intResultado=$this->MdMarcas->editar($intId,$strNombre,$strDescripcion,$intEstatus);
+                    $intResultado=$this->MdPedidos->editar($intPedidoId,$strNombre,$strDireccion,$intEstatus,$dateFechaCaptura,$intFechaEntrega,$intCostoEnvio,$intCantidad,$dblTotal);
                 }
                 if($intResultado==1){
                     $arrDatos['arrMensajes']=[array ('intTipo'=>1,'strMensaje'=>'El registro fue guardado')]; 
@@ -288,7 +273,28 @@
                     $arrDatos['arrMensajes']=[array ('intTipo'=>2,'strMensaje'=>'error al guardar')]; 
                     $this->agregar($arrDatos);
                 }
-            }       
+            }else{
+                $this->editar($intPedidoId,TRUE);
+            }
+            $this->session->unset_userdata('arrCarrito','objDatosEnvio');
+            $arrDatosDinamicos['intMarcaId'] = $intMarcaId;
+            $arrDatosDinamicos['dblSubTotal'] = $dblSubTotal;
+            $arrDatosDinamicos['dblCostoEnvio'] = $dblCostoEnvio;
+            $arrDatosDinamicos['dblSubTotalIva'] = $dblSubTotalIva;
+            $arrDatosDinamicos['dblTotal'] = $dblTotal;
+            $arrDatosDinamicos['strNombre'] = $strNombre;
+            $arrDatosDinamicos['dateFechaEntrega'] = $dateFechaEntrega;
+            $arrDatosDinamicos['strDireccion'] = $strDireccion;
+            $arrDatosDinamicos['intEstatus'] = $intEstatus;
+            $arrDatosDinamicos['arrCarrito'] = $this->arrCarrito;
+            $arrDatosDinamicos['arrMarcas'] = $this->MdMarcas->buscarActivos();
+            $arrDatosDinamicos['arrModelos'] = $this->MdModelos->listar($intMarcaId);
+        }
+        public function editar($intPedidoId,$EsEditarGuardar=FALSE){
+            if(!$EsEditarGuardar){$arrDatos['registro']= $this->MdMarcas->buscar($intPedidoId);}
+            $arrDatos['strActivo']='pedidos';
+            $arrDatos['strContenido']=$this->load->view('pedidos/agregar',$arrDatos,TRUE);
+            $this->load->view('principal',$arrDatos); 
         }   
     }    
-?>
+    ?>

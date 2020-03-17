@@ -134,7 +134,7 @@
 </div>
 <br>
 <form action="<?= base_url()?>pedidos/guardar/" method="post">
-   <!-- <input type="hidden" value="<?=$objModelo->id?>" name="intModeloId"> -->
+    <input type="hidden" value="" name="intPedidoId">
     <button type="submit" class="btn btn-primary float-right">CONCLUIR PEDIDO</button>
 </form>
 <?php

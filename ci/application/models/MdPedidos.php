@@ -1,5 +1,5 @@
 <?php 
-    class MdResumen extends CI_Model{
+    class MdPedidos extends CI_Model{
         function __construct()
         {
             parent::__construct();
@@ -9,6 +9,18 @@
             $this->db->from ('pedidos');
             $consulta=$this->db->get();
             return $consulta->result();
+        }
+         public function agregar($strNombre,$strDireccion,$intEstatus,$dateFechaCaptura,$dateFechaEntrega,$dblCostoEnvio,$intCantidad,$dblTotal){
+            $this->db->set('nombre_cliente',$strNombre);
+            $this->db->set('direccion',$strDireccion);
+            $this->db->set('estatus',$intEstatus);  
+            $this->db->set('fecha_captura',$dateFechaCaptura);
+            $this->db->set('fecha_entrega',$dateFechaEntrega);  
+            $this->db->set('costo_envio',$dblCostoEnvio); 
+            $this->db->set('cantidad',$intCantidad); 
+            $this->db->set('total',$dblTotal); 
+            $this->db->insert('pedidos');
+            return $this->db->affected_rows();
         }
     }
 ?>
