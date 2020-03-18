@@ -4,7 +4,7 @@
         <div class="row">
             <div class="col-5">
                 <form id="frmDatosEnvio" action="<?= base_url()?>pedidos/datosEnvio" method="POST">
-                <input type="hidden" name="intMarcaId" value="<?=$intMarcaId?>" > 
+                <input type="hidden" name="intMarcaId" value="<?php if(isset($intMarcaId)) $intMarcaId; else 0;?>" > 
                     <div class="form-group">
                         <label for="txtNombre">NOMBRE:</label>
                         <input type="text" name="strNombre" class="form-control" id="strNombre" onchange="submit();" placeholder="Ingrese el nombre" value="<?php echo $this->objDatosEnvio->nombre?>">
@@ -12,26 +12,26 @@
                     <?php echo form_error('strNombre')?>
                     <div class="form-group">
                         <label for="txtFecha">FECHA DE ENTREGA:</label>
-                        <input type="date" name="dateFechaEntrega" class="form-control" id="dateFechaEntrega" onchange="submit();" value="<?php echo $this->objDatosEnvio->fechaEntrega?>" <?php if ($this->objDatosEnvio->nombre == "") echo 'disabled'?>>
+                        <input type="date" name="strFechaEntrega" class="form-control" id="strFechaEntrega" onchange="submit();" value="<?php if($this->objDatosEnvio->nombre != "") {echo $this->objDatosEnvio->fechaEntrega;}?>" <?php if ($this->objDatosEnvio->nombre == "") echo 'disabled'?>>
                     </div>
-                    <?php echo form_error('dateFechaEntrega')?>
+                    <?php echo form_error('strFechaEntrega')?>
                     <div class="form-group">
                         <label for="txtDescripcion">DIRECCION DE ENTREGA:</label>
-                        <textarea class="form-control" name="strDireccion" id="strDireccion" onchange="submit();" placeholder="Ingrese su dirección" <?php if ($this->objDatosEnvio->fechaEntrega == "") echo 'disabled'?>><?php echo $this->objDatosEnvio->direccion?></textarea>
+                        <textarea class="form-control" name="strDireccion" id="strDireccion" onchange="submit();" placeholder="Ingrese su dirección" <?php if ($this->objDatosEnvio->nombre == "" OR $this->objDatosEnvio->fechaEntrega == "") echo 'disabled'?>><?php if($this->objDatosEnvio->nombre != "" AND $this->objDatosEnvio->fechaEntrega != "") {echo $this->objDatosEnvio->direccion;}?></textarea>
                     </div>
                     <?php echo form_error('strDireccion')?>
                     <div class="form-group">
                         <label for="txtCostoEnvio">COSTO DE ENVIO:</label>
-                        <input type="number" name="dblCostoEnvio" class="form-control" id="dblCostoEnvio" onchange="submit();" placeholder="Ingrese el Costo de Envío" value="<?php echo $this->objDatosEnvio->costoEnvio?>"<?php if ($this->objDatosEnvio->direccion == "") echo 'disabled'?>>
+                        <input type="number" name="dblCostoEnvio" class="form-control" id="dblCostoEnvio" onchange="submit();" placeholder="Ingrese el Costo de Envío" value="<?php if($this->objDatosEnvio->nombre != "" AND $this->objDatosEnvio->fechaEntrega != "" AND $this->objDatosEnvio->direccion != "") {echo $this->objDatosEnvio->costoEnvio;}?>"<?php if ($this->objDatosEnvio->nombre == "" OR $this->objDatosEnvio->fechaEntrega == "" OR $this->objDatosEnvio->direccion == "") echo 'disabled'?>>
                     </div>
                     <?php echo form_error('dblCostoEnvio')?>
                     <div class="form-group">
                         <label for="txtEstatus">ESTATUS:</label>
-                        <select name="intEstatus" id="cmbEstatus" class="form-control" onchange = "submit();" <?php if ($this->objDatosEnvio->costoEnvio == "") echo 'disabled'?>>
+                        <select name="intEstatus" id="cmbEstatus" class="form-control" onchange = "submit();" <?php if ($this->objDatosEnvio->nombre == "" OR $this->objDatosEnvio->fechaEntrega == "" OR $this->objDatosEnvio->direccion == "" OR $this->objDatosEnvio->costoEnvio == "") echo 'disabled'?>>
                             <option value="0">[Seleccion el Estatus]</option>
-                            <option value="1"<?php if($this->objDatosEnvio->estatus == 1) echo 'selected'?>>En Proceso</option>
-                            <option value="2"<?php if($this->objDatosEnvio->estatus == 2) echo 'selected'?>>En Camino</option>
-                            <option value="3"<?php if($this->objDatosEnvio->estatus == 3) echo 'selected'?>>Cancelado</option>
+                            <option value="1"<?php if($this->objDatosEnvio->nombre != "" AND $this->objDatosEnvio->fechaEntrega != "" AND $this->objDatosEnvio->direccion != "" AND $this->objDatosEnvio->costoEnvio != "") {if($this->objDatosEnvio->estatus == 1){ echo 'selected';}}?>>En Proceso</option>
+                            <option value="2"<?php if($this->objDatosEnvio->nombre != "" AND $this->objDatosEnvio->fechaEntrega != "" AND $this->objDatosEnvio->direccion != "" AND $this->objDatosEnvio->costoEnvio != "") {if($this->objDatosEnvio->estatus == 2){ echo 'selected';}}?>>En Camino</option>
+                            <option value="3"<?php if($this->objDatosEnvio->nombre != "" AND $this->objDatosEnvio->fechaEntrega != "" AND $this->objDatosEnvio->direccion != "" AND $this->objDatosEnvio->costoEnvio != "") {if($this->objDatosEnvio->estatus == 3){ echo 'selected';}}?>>Cancelado</option>
                         </select>
                     </div>
                     <?php echo form_error('intEstatus')?>
@@ -40,7 +40,7 @@
                         <label for="txtProducto">SELECCIONE LA MARCA:</label>
                         <div class="form-group">
                             <form id="frmCargarModelos" action="<?= base_url()?>pedidos" method="POST">    
-                                <select name="intMarcaId" id="cmbMarca" class="form-control"  onchange ="submit();" <?php if ($this->objDatosEnvio->estatus == "" OR $intEstatus == 0) echo 'disabled'?>>
+                                <select name="intMarcaId" id="cmbMarca" class="form-control"  onchange ="submit();" >
                                 <option value="0">[Marca]</option>
                                 <?php foreach($arrMarcas as $objMarcas)  {?>
                                     <option value="<?=$objMarcas->id?>" <?php if($objMarcas->id == $intMarcaId) echo 'selected'?>><?=$objMarcas->nombre?></option>
@@ -51,7 +51,7 @@
                     </div>
                     <?php echo form_error('intMarcaId')?> 
                 <form id="frmAgregarCarrito" action="<?=base_url()?>pedidos/agregarCarrito" method="POST">  
-                    <input type="hidden" name="intMarcaId" value="<?=$intMarcaId?>" > 
+                    <input type="hidden" name="intMarcaId" value="<?php if(isset($intMarcaId)) $intMarcaId; else 0;?>" > 
                     <div class="form-group">
                         <label for="txtProducto">SELECCIONE EL MODELO:</label>
                         <div class="form-group">
@@ -66,7 +66,7 @@
                     <?php echo form_error('intModeloId')?>
                     <div class="form-group">
                         <label for="txtProducto">CANTIDAD:</label>
-                        <input type="number" class="form-control" name="intCantidad" id="txtCantidad" max="50" min="1" value="1" <?php if($intMarcaId == 0) echo 'disabled' ?>>
+                        <input type="number" class="form-control" name="intCantidad" id="txtCantidad" max="50" min="1" value="1" <?php if(isset($intMarcaId)) $intMarcaId; else $intMarcaId=0; if($intMarcaId == 0) echo 'disabled' ?>>
                     </div>
                     <?php echo form_error('intCantidad')?>
                     <button type="button" class="btn btn-info float-right" onclick="submit();" >AGREGAR PRODUCTO</button>   
@@ -87,7 +87,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach($arrCarrito as $objModelo)  {?>
+                            <?php foreach($this->arrCarrito as $objModelo)  {?>
                             <tr>
                                 <td><?=$objModelo->id ?></td>
                                 <td><?=$objModelo->marca_id ?></td>
