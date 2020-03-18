@@ -263,14 +263,12 @@
                     )
                 );
             }
-            if ($strDireccion == "") {
-                $this->form_validation->set_rules(
-                    'strDireccion', 'Direccion','required',
-                    array(
-                        'required'=>'Ingrese una %s.',
-                    )
-                );    
-            }
+                    $this->form_validation->set_rules(
+                        'strDireccion', 'Direccion','required',
+                        array(
+                            'required'=>'Ingrese una %s.',
+                        )
+                    );    
             if ($dblCostoEnvio == "") {
                 $this->form_validation->set_rules(
                     'dblCostoEnvio', 'Costo de Envio','required|number',

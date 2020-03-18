@@ -12,7 +12,7 @@
                     <?php echo form_error('strNombre')?>
                     <div class="form-group">
                         <label for="txtFecha">FECHA DE ENTREGA:</label>
-                        <input type="date" name="strFechaEntrega" class="form-control" id="strFechaEntrega" onchange="submit();" value="<?php if($this->objDatosEnvio->nombre != "") {echo $this->objDatosEnvio->fechaEntrega;}?>" <?php if ($this->objDatosEnvio->nombre == "") echo 'disabled'?>>
+                        <input type="date" name="strFechaEntrega" class="form-control" id="txtFechaEntrega" onchange="submit();" value="<?php if($this->objDatosEnvio->nombre != "") {echo $this->objDatosEnvio->fechaEntrega;}?>" <?php if ($this->objDatosEnvio->nombre == "") echo 'disabled'?>>
                     </div>
                     <?php echo form_error('strFechaEntrega')?>
                     <div class="form-group">
