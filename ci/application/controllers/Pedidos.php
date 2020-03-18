@@ -5,7 +5,7 @@
             $this->load->model('MdModelos');//cargar un modelo a nivel clase
             $this->load->model('MdMarcas');//cargar un modelo a nivel clase
             $this->load->model('MdPedidos');//cargar un modelo a nivel clase
-            $this->load->helper('date');
+            $this->load->helper('form');
             //$this->session->set_userdata('arrCarrito',[]);//meter el carrito a session
             
             if($this->session->has_userdata('arrCarrito')){//verificar si existe carrito
@@ -77,7 +77,18 @@
             $strFechaEntrega=$this->objDatosEnvio->fechaEntrega;
             $intEstatus=$this->objDatosEnvio->estatus;
             $bolExisteModelo=FALSE;
-
+            if ($intModeloId == 0) {
+                $this->form_validation->set_rules(
+                    'intModeloId', 'Modelo','required|integer',
+                    array(
+                        'required'=>'Seleccione un %s.',
+                        'integer' =>'El %s debe ser un número'
+                    )
+                );    
+            }
+            if ($dblCostoEnvio == NULL) {
+                $dblCostoEnvio = 0;
+            }
             if(count($this->arrCarrito)!=0){
                 $dblSubTotal = 0;//declaracion de variables a nivel funcion
                 $dblIva=.16;//declaracion de variables a nivel funcion
@@ -198,7 +209,7 @@
             $this->objDatosEnvio->costoEnvio = $dblCostoEnvio;
             $this->objDatosEnvio->estatus = $intEstatus;
             $this->session->set_userdata('objDatosEnvio',$this->objDatosEnvio);//asignar arrCarrito a una variable a sesion
-            //echo var_dump($this->objDatosEnvio);
+            echo var_dump($this->objDatosEnvio);
             if ($dblCostoEnvio == NULL) {
                 $dblCostoEnvio = 0;
             }
@@ -250,7 +261,7 @@
                     array(
                         'required'=>'Ingrese la %s.',
                     )
-                );    
+                );
             }
             if ($strDireccion == "") {
                 $this->form_validation->set_rules(
@@ -262,13 +273,14 @@
             }
             if ($dblCostoEnvio == "") {
                 $this->form_validation->set_rules(
-                    'dblCostoEnvio', 'Costo de Envio','required',
+                    'dblCostoEnvio', 'Costo de Envio','required|number',
                     array(
                         'required'=>'Ingrese el %s.',
+                        'number' => 'El %s sera un numero'
                     )
                 );    
             }
-            if ($intEstatus == "") {
+            if ($intEstatus == "" OR $intEstatus == 0) {
                 $this->form_validation->set_rules(
                     'intEstatus', 'Estatus',
                     'required|integer|greater_than[0]',
@@ -278,9 +290,10 @@
                         'greater_than'=>'Seleccione un %s'
                     )
                 );
-            }  
+            } 
             if ($this->form_validation->run() == FALSE){
-                if($intPedidoId==''){                
+                if($intPedidoId == ''){  
+                    echo 'm naoksd';        
                     $this->agregar();
                 }else{
                     $this->editar($intPedidoId,TRUE);
@@ -288,10 +301,10 @@
             }else{
                 $intResultado=0;
                 if ($intPedidoId==''){
-                    $intResultado=$this->MdPedidos->agregar($strNombre,$strDireccion,$intEstatus,$dateFechaCaptura,$strFechaEntrega,$dblCostoEnvio,$intCantidad,$dblTotal);
+                    $intResultado=$this->MdPedidos->agregar($strNombre,$strDireccion,$intEstatus,$strFechaEntrega,$dblCostoEnvio);
                 }else
                 {
-                    $intResultado=$this->MdPedidos->editar($intPedidoId,$strNombre,$strDireccion,$intEstatus,$dateFechaCaptura,$intFechaEntrega,$intCostoEnvio,$intCantidad,$dblTotal);
+                    $intResultado=$this->MdPedidos->editar($intPedidoId,$strNombre,$strDireccion,$intEstatus,$intFechaEntrega,$intCostoEnvio);
                 }
                 if($intResultado==1){
                     $arrDatos['arrMensajes']=[array ('intTipo'=>1,'strMensaje'=>'El registro fue guardado')]; 
@@ -304,9 +317,36 @@
         }    
         public function editar($intPedidoId,$EsEditarGuardar=FALSE){
             if(!$EsEditarGuardar){$arrDatos['registro'] = $this->MdMarcas->buscar($intPedidoId);}
+            $intMarcaId=$this->input->post('intMarcaId');//obtener por POST el valor desde el formulario             
+            $dblCostoEnvio=$this->objDatosEnvio->costoEnvio;
+            if ($dblCostoEnvio == NULL) {
+                $dblCostoEnvio = 0;
+            }
+            if(count($this->arrCarrito)!=0){
+                $dblSubTotal = 0;//declaracion de variables a nivel funcion
+                $dblIva=.16;//declaracion de variables a nivel funcion
+                $dblSubTotalIva = 0;//declaracion de variables a nivel funcion
+                $dblTotal = 0;//declaracion de variables a nivel funcion
+                if(count($this->arrCarrito)!=0){ //EVALUA QUE EL CARRITO NO ESTE VACIO
+                    foreach ($this->arrCarrito as $objModelo) { //RECORRE CADA ELEMENTO DEL CARRITO
+                        $dblSubTotal+=$objModelo->subTotal; //CALCULA LA SUMATORIA DEL SUBTOTAL
+                        $dblSubTotalIva=$dblSubTotal * $dblIva; //CALCULA CUANTO ES EL IVA DE LA SUMATORIA DEL SUBTOTAL
+                        $dblTotal=$dblSubTotal + $dblSubTotalIva + $dblCostoEnvio; //CALCULA EL TOTAL SUMANDO EL SUBTOTAL MAS EL IVA MAS EL COSTO DE ENVIO
+                    }
+                }
+            }else {
+                $dblSubTotal = 0;//declaracion de variables a nivel funcion
+                $dblSubTotalIva = 0;//declaracion de variables a nivel funcion
+                $dblTotal = 0;//declaracion de variables a nivel funcion
+            }   
+            $arrDatosDinamicos['intMarcaId'] = $intMarcaId;          
+            $arrDatosDinamicos['dblSubTotal'] = $dblSubTotal;
+            $arrDatosDinamicos['dblCostoEnvio'] = $dblCostoEnvio;
+            $arrDatosDinamicos['dblSubTotalIva'] = $dblSubTotalIva;
+            $arrDatosDinamicos['dblTotal'] = $dblTotal;
             $arrDatos['strActivo'] = 'pedidos';
-            $arrDatos['strContenido'] = $this->load->view('pedidos/agregar',NULL,TRUE);
-            $this->load->view('principal',$arrDatos);
+            $arrDatos['strContenido'] = $this->load->view('pedidos/agregar',$arrDatosDinamicos,TRUE);
+            $this->load->view('principal',$arrDatos); 
         }   
         public function agregar($arrDatos=[]){
             $intMarcaId=$this->input->post('intMarcaId');//obtener por POST el valor desde el formulario             
@@ -340,83 +380,5 @@
             $arrDatos['strContenido'] = $this->load->view('pedidos/agregar',$arrDatosDinamicos,TRUE);
             $this->load->view('principal',$arrDatos); 
         }
-        /*public function guardar(){
-            $intMarcaId=$this->input->post('intMarcaId');//obtener por POST el valor desde el formulario
-            $intPedidoId=$this->input->post('intPedidoId');
-            $dblCostoEnvio=$this->objDatosEnvio->costoEnvio;
-            $strNombre=$this->objDatosEnvio->nombre;
-            $strDireccion=$this->objDatosEnvio->direccion;
-            $strFechaEntrega=$this->objDatosEnvio->fechaEntrega;
-            $intEstatus=$this->objDatosEnvio->estatus;
-            $intCantidad=0; 
-            $dateFechaCaptura = time();
-            #if(count($this->arrCarrito)==0{}
-
-            foreach ($this->arrCarrito as $objModelo) {//recorrer el carrito
-                $objModelo->cantidad += $intCantidad;
-            }
-            if ($dblCostoEnvio == NULL) {
-                $dblCostoEnvio = 0;
-            }
-            $dblSubTotal = 0;//declaracion de variables a nivel funcion
-            $dblIva=.16;//declaracion de variables a nivel funcion
-            $dblSubTotalIva = 0;//declaracion de variables a nivel funcion
-            $dblTotal = $dblCostoEnvio;//declaracion de variables a nivel funcion
-            if(count($this->arrCarrito)!=0){ //EVALUA QUE EL CARRITO NO ESTE VACIO
-                foreach ($this->arrCarrito as $objModelo) { //RECORRE CADA ELEMENTO DEL CARRITO
-                    $dblSubTotal+=$objModelo->subTotal; //CALCULA LA SUMATORIA DEL SUBTOTAL
-                    $dblSubTotalIva=$dblSubTotal * $dblIva; //CALCULA CUANTO ES EL IVA DE LA SUMATORIA DEL SUBTOTAL
-                    $dblTotal=$dblSubTotal + $dblSubTotalIva + $dblCostoEnvio; //CALCULA EL TOTAL SUMANDO EL SUBTOTAL MAS EL IVA MAS EL COSTO DE ENVIO
-                }
-            }
-            if ($this->objDatosEnvio->nombre == "") {
-                $this->form_validation->set_rules(
-                    'strNombre', 'Nombre','required',
-                    array(
-                        'required'=>'Ingrese un %s.',
-                    )
-                );  
-            }  
-            $this->form_validation->set_rules(
-                'intEstatus', 'Estatus',
-                'required|integer|greater_than[0]',
-                array(
-                    'required'=>'Ingrese un %s.',
-                    'integer'=>'El %s debe ser un número.',
-                    'greater_than'=>'Seleccione un %s'
-                )
-            );     
-            if($intPedidoId == ''){                
-                $intResultado=0;
-                if ($intPedidoId==''){
-                    $intResultado=$this->MdPedidos->agregar($strNombre,$strDireccion,$intEstatus,$dateFechaCaptura,$strFechaEntrega,$dblCostoEnvio,$intCantidad,$dblTotal);
-                }else
-                {
-                    $intResultado=$this->MdPedidos->editar($intPedidoId,$strNombre,$strDireccion,$intEstatus,$dateFechaCaptura,$intFechaEntrega,$intCostoEnvio,$intCantidad,$dblTotal);
-                }
-                if($intResultado==1){
-                    $arrDatos['arrMensajes']=[array ('intTipo'=>1,'strMensaje'=>'El registro fue guardado')]; 
-                    $this->index($arrDatos);
-                }else{
-                    $arrDatos['arrMensajes']=[array ('intTipo'=>2,'strMensaje'=>'error al guardar')]; 
-                    $this->agregar($arrDatos);
-                }
-            }else{
-                $this->editar($intPedidoId,TRUE);
-            }
-            $this->session->unset_userdata('arrCarrito','objDatosEnvio');
-            $arrDatosDinamicos['intMarcaId'] = $intMarcaId;
-            $arrDatosDinamicos['dblSubTotal'] = $dblSubTotal;
-            $arrDatosDinamicos['dblCostoEnvio'] = $dblCostoEnvio;
-            $arrDatosDinamicos['dblSubTotalIva'] = $dblSubTotalIva;
-            $arrDatosDinamicos['dblTotal'] = $dblTotal;
-            $arrDatosDinamicos['strNombre'] = $strNombre;
-            $arrDatosDinamicos['strFechaEntrega'] = $strFechaEntrega;
-            $arrDatosDinamicos['strDireccion'] = $strDireccion;
-            $arrDatosDinamicos['intEstatus'] = $intEstatus;
-            $arrDatosDinamicos['arrCarrito'] = $this->arrCarrito;
-            $arrDatosDinamicos['arrMarcas'] = $this->MdMarcas->buscarActivos();
-            $arrDatosDinamicos['arrModelos'] = $this->MdModelos->listar($intMarcaId);
-        }*/ 
     }    
     ?>

@@ -22,7 +22,9 @@
                     <?php echo form_error('strDireccion')?>
                     <div class="form-group">
                         <label for="txtCostoEnvio">COSTO DE ENVIO:</label>
-                        <input type="number" name="dblCostoEnvio" class="form-control" id="dblCostoEnvio" onchange="submit();" placeholder="Ingrese el Costo de Envío" value="<?php if($this->objDatosEnvio->nombre != "" AND $this->objDatosEnvio->fechaEntrega != "" AND $this->objDatosEnvio->direccion != "") {echo $this->objDatosEnvio->costoEnvio;}?>"<?php if ($this->objDatosEnvio->nombre == "" OR $this->objDatosEnvio->fechaEntrega == "" OR $this->objDatosEnvio->direccion == "") echo 'disabled'?>>
+                        <input type="number" name="dblCostoEnvio" class="form-control" id="dblCostoEnvio" onchange="submit();" placeholder="<?php if ($this->objDatosEnvio->costoEnvio == NULL) {
+                            echo "$0";
+                        } ?>" value="<?php if($this->objDatosEnvio->nombre != "" AND $this->objDatosEnvio->fechaEntrega != "" AND $this->objDatosEnvio->direccion != "") {echo $this->objDatosEnvio->costoEnvio;}?>"<?php if ($this->objDatosEnvio->nombre == "" OR $this->objDatosEnvio->fechaEntrega == "" OR $this->objDatosEnvio->direccion == "") echo 'disabled'?>>
                     </div>
                     <?php echo form_error('dblCostoEnvio')?>
                     <div class="form-group">
@@ -69,10 +71,10 @@
                         <input type="number" class="form-control" name="intCantidad" id="txtCantidad" max="50" min="1" value="1" <?php if(isset($intMarcaId)) $intMarcaId; else $intMarcaId=0; if($intMarcaId == 0) echo 'disabled' ?>>
                     </div>
                     <?php echo form_error('intCantidad')?>
-                    <button type="button" class="btn btn-info float-right" onclick="submit();" >AGREGAR PRODUCTO</button>   
+                    <button type="button" class="btn btn-info float-right" onclick="submit();" <?php if($intMarcaId==0) echo 'disabled'?> >AGREGAR PRODUCTO</button>   
                 </form>
             </div>
-            <div class="col-7">
+            <div class="col-span-7">
                 <div class="tab-content">
                     <table class="table">
                         <thead>
@@ -103,14 +105,11 @@
                                 </td>
                             </tr>
                             <?php }?>
-                            
                         </tbody>
                     </table> 
-                </div>       
-            </div>
-        </div>
-        <div class="row justify-content-end">
-            <div class="col-4">
+                </div>
+                <div class="row justify-content-end">
+            <div class="col-6">
                 <table class="table" border="1" >
                     <tr>
                         <td>SubTotal</td>
@@ -129,6 +128,8 @@
                         <td align="right">$ <?= $dblTotal?></td>
                     </tr>
                 </table> 
+            </div>
+        </div>       
             </div>
         </div>
     </div>

@@ -10,15 +10,15 @@
             $consulta=$this->db->get();
             return $consulta->result();
         }
-         public function agregar($strNombre,$strDireccion,$intEstatus,$dateFechaCaptura,$strFechaEntrega,$dblCostoEnvio,$intCantidad,$dblTotal){
+         public function agregar($strNombre,$strDireccion,$intEstatus,$strFechaEntrega,$dblCostoEnvio){
             $this->db->set('nombre_cliente',$strNombre);
             $this->db->set('direccion',$strDireccion);
             $this->db->set('estatus',$intEstatus);  
-            $this->db->set('fecha_captura',$dateFechaCaptura);
+            #$this->db->set('fecha_captura',$dateFechaCaptura);
             $this->db->set('fecha_entrega',$strFechaEntrega);  
             $this->db->set('costo_envio',$dblCostoEnvio); 
-            $this->db->set('cantidad',$intCantidad); 
-            $this->db->set('total',$dblTotal); 
+            #$this->db->set('cantidad',$intCantidad); 
+            #$this->db->set('total',$dblTotal); 
             $this->db->insert('pedidos');
             return $this->db->affected_rows();
         }
