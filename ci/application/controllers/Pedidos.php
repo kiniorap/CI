@@ -26,45 +26,16 @@
                 $this->session->set_userdata('objDatosEnvio',$this->objDatosEnvio);//asignar arrCarrito a una variable a sesion
             }//SESSION_DESTROY();
         }
-        public function index(){ //Cargar a nivel funcion con el simbolo de $ + variable ejemplo $intId
-            $intMarcaId = $this->input->post('intMarcaId');//obtener un valor por POST desde el formulario  CARGA LA MARCA
+        public function index($arrDatos=[]){
+            $intMarcaId=$this->input->post('intMarcaId');//obtener por POST el valor desde el formulario
             if($intMarcaId == ''){//EVALUA QUE LA MARCA NO ESTE VACIO
                 $intMarcaId = 0; //SI VINE VACIO EL MARCAID LE ASIGNA UN VALOR    
             }
-            $dblCostoEnvio = $this->objDatosEnvio->costoEnvio;
-            $strNombre = $this->objDatosEnvio->nombre;
-            $strDireccion = $this->objDatosEnvio->direccion;
-            $strFechaEntrega = $this->objDatosEnvio->fechaEntrega;
-            $intEstatus=$this->objDatosEnvio->estatus;
-            if ($dblCostoEnvio == NULL) {
-                $dblCostoEnvio = 0;
-            }
-            //echo var_dump($this->objDatosEnvio);
-            $dblSubTotal = 0;//declaracion de variables a nivel funcion
-            $dblIva=.16;//declaracion de variables a nivel funcion
-            $dblSubTotalIva = 0;//declaracion de variables a nivel funcion
-            $dblTotal = $dblCostoEnvio;//declaracion de variables a nivel funcion
-            if(count($this->arrCarrito)!=0){ //EVALUA QUE EL CARRITO NO ESTE VACIO
-                foreach ($this->arrCarrito as $objModelo) { //RECORRE CADA ELEMENTO DEL CARRITO
-                    $dblSubTotal+=$objModelo->subTotal; //CALCULA LA SUMATORIA DEL SUBTOTAL
-                    $dblSubTotalIva=$dblSubTotal * $dblIva; //CALCULA CUANTO ES EL IVA DE LA SUMATORIA DEL SUBTOTAL
-                    $dblTotal=$dblSubTotal + $dblSubTotalIva + $dblCostoEnvio; //CALCULA EL TOTAL SUMANDO EL SUBTOTAL MAS EL IVA MAS EL COSTO DE ENVIO
-                }
-            }
             $arrDatosDinamicos['intMarcaId'] = $intMarcaId;
-            $arrDatosDinamicos['dblSubTotal'] = $dblSubTotal;
-            $arrDatosDinamicos['dblCostoEnvio'] = $dblCostoEnvio;
-            $arrDatosDinamicos['dblSubTotalIva'] = $dblSubTotalIva;
-            $arrDatosDinamicos['dblTotal'] = $dblTotal;
-            $arrDatosDinamicos['strNombre'] = $strNombre;
-            $arrDatosDinamicos['strFechaEntrega'] = $strFechaEntrega;
-            $arrDatosDinamicos['strDireccion'] = $strDireccion;
-            $arrDatosDinamicos['intEstatus'] = $intEstatus;
-            $arrDatosDinamicos['arrCarrito'] = $this->arrCarrito;
             $arrDatosDinamicos['arrMarcas'] = $this->MdMarcas->buscarActivos();
-            $arrDatosDinamicos['arrModelos'] = $this->MdModelos->listar($intMarcaId);
+            $arrDatosDinamicos['arrModelos'] = $this->MdPedidos->listar();
             $arrDatos['strActivo'] = 'pedidos';
-            $arrDatos['strContenido'] = $this->load->view('pedidos/agregar',$arrDatosDinamicos,TRUE);
+            $arrDatos['strContenido'] = $this->load->view('pedidos/resumen',$arrDatosDinamicos,TRUE);
             $this->load->view('principal',$arrDatos);
         }
         public function agregarCarrito(){
@@ -290,8 +261,7 @@
                 );
             } 
             if ($this->form_validation->run() == FALSE){
-                if($intPedidoId == ''){  
-                    echo 'm naoksd';        
+                if($intPedidoId == ''){    
                     $this->agregar();
                 }else{
                     $this->editar($intPedidoId,TRUE);
@@ -347,7 +317,10 @@
             $this->load->view('principal',$arrDatos); 
         }   
         public function agregar($arrDatos=[]){
-            $intMarcaId=$this->input->post('intMarcaId');//obtener por POST el valor desde el formulario             
+            $intMarcaId=$this->input->post('intMarcaId');//obtener por POST el valor desde el formulario
+            if($intMarcaId == ''){//EVALUA QUE LA MARCA NO ESTE VACIO
+                $intMarcaId = 0; //SI VINE VACIO EL MARCAID LE ASIGNA UN VALOR    
+            }
             $dblCostoEnvio=$this->objDatosEnvio->costoEnvio;
             if ($dblCostoEnvio == NULL) {
                 $dblCostoEnvio = 0;
@@ -374,6 +347,8 @@
             $arrDatosDinamicos['dblCostoEnvio'] = $dblCostoEnvio;
             $arrDatosDinamicos['dblSubTotalIva'] = $dblSubTotalIva;
             $arrDatosDinamicos['dblTotal'] = $dblTotal;
+            $arrDatosDinamicos['arrMarcas'] = $this->MdMarcas->buscarActivos();
+            $arrDatosDinamicos['arrModelos'] = $this->MdModelos->listar($intMarcaId);
             $arrDatos['strActivo'] = 'pedidos';
             $arrDatos['strContenido'] = $this->load->view('pedidos/agregar',$arrDatosDinamicos,TRUE);
             $this->load->view('principal',$arrDatos); 

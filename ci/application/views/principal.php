@@ -24,9 +24,6 @@
                 <li class="nav-item <?php if($strActivo=='pedidos') echo 'active';?>">
                     <a class="nav-link" href="<?= base_url()?>pedidos">Pedidos</a>
                 </li>
-                <li class="nav-item <?php if($strActivo=='resumen') echo 'active';?>">
-                    <a class="nav-link" href="<?= base_url()?>resumen">Resumen</a>
-                </li>
             </ul>
         </div>
     </nav>
